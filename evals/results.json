@@ -1,0 +1,36 @@
+{
+ "dataset": "BEIR SciFact (5,183 docs; 809 train / 300 test queries)",
+ "candidates": 100,
+ "test": {
+  "bm25_ndcg10": 0.6602,
+  "reranker_ndcg10": 0.6692,
+  "lift": 0.009,
+  "lift_95ci": [
+   -0.0021,
+   0.0199
+  ],
+  "bm25_recall_at_100": 0.8859,
+  "queries_improved": 34,
+  "queries_hurt": 18
+ },
+ "train": {
+  "bm25_ndcg10": 0.667,
+  "reranker_ndcg10": 0.6723
+ },
+ "weights": {
+  "bias": 0,
+  "bm25_norm": 1.5067,
+  "log_bm25": 4.0172,
+  "idf_coverage": 0.5326,
+  "title_idf_coverage": 2.4299,
+  "bigram_overlap": -0.4305,
+  "lead_coverage": -0.1479,
+  "inv_rank": 0.4003,
+  "log_len": -3.6594
+ },
+ "cpu": {
+  "feature_extraction_s": 10.3344,
+  "train_s": 0.1537,
+  "rerank_ms_per_query_100_cands": 0.0066
+ }
+}

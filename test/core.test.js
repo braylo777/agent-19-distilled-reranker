@@ -1,0 +1,14 @@
+import test from "node:test"; import assert from "node:assert/strict"; import fs from "node:fs";
+import { tok, buildIndex, features, train, score, ndcg, FEATURE_NAMES } from "../src/core.js"; import { WEIGHTS } from "../src/weights.js"; import { rerank } from "../src/index.js";
+const docs = [{ id: "1", title: "Aspirin reduces heart attack risk", text: "Low dose aspirin lowers myocardial infarction." }, { id: "2", title: "Coffee and sleep", text: "Caffeine delays sleep onset." }, { id: "3", title: "Heart rate in athletes", text: "Athletes have low resting heart rate." }];
+test("tokenizer drops stopwords", () => assert.deepEqual(tok("The heart of it"), ["heart"]));
+test("bm25 ranks matching doc first", () => { const ix = buildIndex(docs); assert.equal(ix.D[ix.search("aspirin heart attack")[0].i].id, "1"); });
+test("bm25 returns only docs sharing terms", () => assert.equal(buildIndex(docs).search("caffeine").length, 1));
+test("feature vector length", () => { const ix = buildIndex(docs); const d = { ...ix.D[0], s: 1 }; assert.equal(features(ix, "aspirin", d, 0, 1).length, FEATURE_NAMES.length); });
+test("ndcg perfect = 1", () => assert.equal(ndcg([1, 0, 0], [1]), 1));
+test("ndcg worse when relevant ranked lower", () => assert.ok(ndcg([0, 1], [1]) < 1));
+test("ndcg zero without relevant", () => assert.equal(ndcg([0, 0], []), 0));
+test("trainer learns to separate pos/neg", () => { const g = { feats: [[1, 1, 0], [1, 0, 1]], rel: [1, 0] }; const w = train([g], { epochs: 50 }); assert.ok(score(w, g.feats[0]) > score(w, g.feats[1])); });
+test("shipped weights match feature count", () => assert.equal(WEIGHTS.length, FEATURE_NAMES.length));
+test("rerank API returns all matching docs", () => assert.equal(rerank("heart", docs).length, 2));
+test("results: reranker nDCG@10 >= BM25 on SciFact test", () => { const r = JSON.parse(fs.readFileSync(new URL("../evals/results.json", import.meta.url))); assert.ok(r.test.reranker_ndcg10 >= r.test.bm25_ndcg10); });

@@ -1,0 +1,3 @@
+name = "agent-19-distilled-reranker"
+main = "src/index.js"
+compatibility_date = "2026-10-01"

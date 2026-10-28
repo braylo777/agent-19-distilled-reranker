@@ -1,0 +1,2 @@
+{ "name": "agent-19-distilled-reranker", "version": "1.0.0", "type": "module", "private": true,
+  "scripts": { "test": "node --test test/", "eval": "node evals/run.mjs", "build": "node build.mjs" } }
