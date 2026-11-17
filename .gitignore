@@ -1,3 +1,8 @@
-node_modules/
+__pycache__/
+.pytest_cache/
+target/
+build/
 .wrangler/
-evals/data/scifact/
+.dev.vars
+*.pyc
+evals/data/

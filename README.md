@@ -24,10 +24,11 @@ Learned weights: bias 0, bm25_norm 1.5067, log_bm25 4.0172, idf_coverage 0.5326,
 
 ## How to run
 ```bash
-bash evals/get-data.sh   # downloads BEIR SciFact (~2.8 MB), not committed (CC BY-NC 2.0)
-npm run eval             # BM25 + train + eval -> evals/results.json, src/weights.js, src/demo.js
-npm test                 # 11 tests
-npm run build            # dist/worker.js;  or: npx wrangler deploy
+python3 evals/get_data.py   # downloads BEIR SciFact (~2.8 MB), not committed (CC BY-NC 2.0)
+python3 evals/run.py        # BM25 + train + eval -> evals/results.json, data/weights.json, data/demo.json
+python3 -m pytest           # 4 Python test functions
+cd worker && cargo test     # 2 Rust test functions
+cd worker && worker-build --release   # build the Worker (wasm); then: wrangler deploy
 ```
 No dependencies. Free tier only. Rollback tag: `v0-rollback`. CI job in `ci/github-actions-ci.yml` (copy to `.github/workflows/` to enable).
 
@@ -35,3 +36,6 @@ No dependencies. Free tier only. Rollback tag: `v0-rollback`. CI job in `ci/gith
 - Teacher: score the top-20 BM25 candidates for the 809 train queries with `@cf/baai/bge-reranker-base` (about 16k pairs, spread over days to stay inside the free 10k-neuron allocation).
 - Distill: retrain the student on teacher soft labels plus gold, then report student vs BM25 vs teacher nDCG@10 and latency.
 - Add a dense feature (bge-small cosine) and measure its lift.
+
+## Port note
+Rust and Python replace the JavaScript. For 45 queries over a 150-document corpus, the old JavaScript, the Python and the Rust code produce identical BM25 scores, ranks and reranker scores (top 30 each), and the pairwise trainer gives identical weights. The rendered demo page is byte-identical. The shipped weights and demo payload are in `data/`. The SciFact training run itself was not re-run in this port (it needs the dataset download), so `evals/results.json` is still the recorded 2026-10-27 result; `evals/run.py` was checked end-to-end on a small synthetic dataset only. The previous JavaScript version is on the `legacy-js` branch and the `pre-pycrust` tag.
